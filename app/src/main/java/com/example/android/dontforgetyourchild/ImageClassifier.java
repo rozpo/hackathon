@@ -16,11 +16,20 @@ limitations under the License.
 package com.example.android.dontforgetyourchild;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -267,30 +276,39 @@ public class ImageClassifier {
         Log.d(TAG, "savedTime: " + savedTime);
         Log.d(TAG, "textToShow: " + textToShow);
 
-        if (label.getKey().contains("alert") && label.getValue() >= 0.9)
-        {
-          if (3000 <= (currentTime - savedTime))
-          {
-            Log.d(TAG, "tenTimesToAlert: ++");
-            tenTimesToAlert++;
-            savedTime = currentTime;
+        if (!CameraActivity.isPlugIn) {
+          if (label.getKey().contains("alert") && label.getValue() >= 0.9) {
+            if (1500 <= (currentTime - savedTime)) {
+              Log.d(TAG, "tenTimesToAlert: ++");
+              tenTimesToAlert++;
+              savedTime = currentTime;
+            }
+          } else if (label.getKey().contains("alert")) {
+            Log.d(TAG, "tenTimesToAlert: 00");
+            tenTimesToAlert = 0;
+          }
+
+          if (tenTimesToAlert >= 9) {
+            // TODO -> send sms
+            //smsManager.sendTextMessage("00972544614426", null, "DON'T FORGET YOUR CHILD!", null, null);
+            //smsManager.sendTextMessage("00972525515875", null, "sms message: ALERT!", null, null);
+            Log.d(TAG, "SMS: DON'T FORGET YOUR CHILD!");
+
+            //Dialog fireDialog = new FireDialog().onCreateDialog();
+
+
+            //cameraActivity.open();
+            tenTimesToAlert = 0;
+
+           // Toast.makeText(getApplicationContext(), "SMS SEND!", Toast.LENGTH_LONG).show();
           }
         }
-        else if (label.getKey().contains("alert"))
+        else
         {
-          Log.d(TAG, "tenTimesToAlert: 00");
-          tenTimesToAlert=0;
-        }
-
-        if (tenTimesToAlert>=9)
-        {
-          // TODO -> send sms
-          //smsManager.sendTextMessage("00972542200912", null, "DON'T FORGET YOUR CHILD!", null, null);
-          //smsManager.sendTextMessage("00972525515875", null, "sms message: ALERT!", null, null);
-          Log.d(TAG, "SMS: DON'T FORGET YOUR CHILD!");
           tenTimesToAlert = 0;
         }
       }
     return textToShow;
   }
 }
+
